@@ -1,0 +1,12 @@
+project sodoku is
+
+	for object_dir use "obj";
+	for source_dirs use ("src");
+	for source_files use ("combi.adb", "combinatoire.adb", "sodoku.adb", "sodoku.ads", "sdksolver.adb", "test_combinatoire.adb", "recherche_solution.adb");
+	for main use ("sdksolver.adb", "test_combinatoire.adb", "recherche_solution.adb");
+
+	package Compiler is
+		for Default_Switches ("Ada") use ("-gnat05");
+	end Compiler;
+
+end sodoku; 

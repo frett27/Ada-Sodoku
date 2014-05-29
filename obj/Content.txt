@@ -1,0 +1,1 @@
+This folder contains binary object, generated in compile time
