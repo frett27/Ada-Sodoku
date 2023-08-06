@@ -15,11 +15,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Set up GNAT toolchain
-      run: >
-        sudo apt-get update &&
-        sudo apt-get install gnat gprbuild
-
     - uses: alire-project/setup-alire@v2
       with:
         branch: "master" # or the branch you want to use
+
+    - run: alr build
