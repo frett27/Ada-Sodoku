@@ -5,7 +5,7 @@ project Sdksolver is
    for Object_Dir use "obj/" & Sdksolver_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";
-   for Main use ("sdksolver.adb");
+   for Main use ("sdksolver.adb", "test_combinatoire.adb", "recherche_solution.adb");
 
    package Compiler is
       for Default_Switches ("Ada") use Sdksolver_Config.Ada_Compiler_Switches;
