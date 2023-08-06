@@ -24,14 +24,14 @@
 package Combinatoire is
 
    -- tableau de combinaison
-   type Combinaison is array(Positive range <>) of Boolean;
-   pragma Pack(Combinaison);
+   type Combinaison is array (Positive range <>) of Boolean;
+   pragma Pack (Combinaison);
 
    -- affichage d'une combinaison
-   procedure Image(C:Combinaison);
+   procedure Image (C : Combinaison);
 
    -- iterateur permettant de parcourir les combinaisons ayant
-   -- TailleTotale de "bit" et ayant nbe "bit" de positionnés à 1
+   -- TailleTotale de "bit" et ayant nbe "bit" de positionnï¿½s ï¿½ 1
    type Iterator is private;
 
    -- Cree l'iterateur
@@ -39,11 +39,10 @@ package Combinatoire is
    ---
    -- Create
    --    creation d'un iterateur
-   function Create (Tailletotale : Natural;
-                    Nbe          : Positive) return Iterator;
+   function Create (Tailletotale : Natural; Nbe : Positive) return Iterator;
 
    -- combinaison suivante ... :-)
-   function Next(It : in Iterator) return Combinaison ;
+   function Next (It : in Iterator) return Combinaison;
 
    END_OF_ITERATOR : exception;
 
@@ -51,30 +50,29 @@ private
 
    MaxPrecalc : constant Natural := 16;
 
-
    type Enum_Combinaison;
    type Enum_Combinaison_Access is access Enum_Combinaison;
 
-   type Enum_Combinaison(Length : Natural) is record
-      C : Combinaison(1..Length);
+   type Enum_Combinaison (Length : Natural) is record
+      C    : Combinaison (1 .. Length);
       Next : Enum_Combinaison_Access;
    end record;
 
    type Enum_Array is array (Natural range <>) of Enum_Combinaison_Access;
    type Enum_Array_Access is access Enum_Array;
 
-   -- par compte de bit à 1, on liste les combinaisons
-   type Combinaison_Precalc(Length : Natural) is record
-     C : Enum_Array(0..Length);
+   -- par compte de bit ï¿½ 1, on liste les combinaisons
+   type Combinaison_Precalc (Length : Natural) is record
+      C : Enum_Array (0 .. Length);
    end record;
 
    type Combinaison_Precalc_Access is access all Combinaison_Precalc;
 
-   type Dictionnaire_Combinaison is array(Natural range 0..MaxPrecalc)
-     of combinaison_precalc_access;
+   type Dictionnaire_Combinaison is
+     array (Natural range 0 .. MaxPrecalc) of Combinaison_Precalc_Access;
 
-    -- tableau contenant les tailles
-   type Nbelements is array(Positive range <>) of Natural;
+   -- tableau contenant les tailles
+   type Nbelements is array (Positive range <>) of Natural;
    type Nbelements_Access is access all Nbelements;
 
    type Enum_Possibilite;
@@ -82,28 +80,24 @@ private
    type Enum_Possibilite_Access_Access is access all Enum_Possibilite_Access;
 
    type Enum_Possibilite is record
-      T : Nbelements_Access;
+      T    : Nbelements_Access;
       Next : Enum_Possibilite_Access;
    end record;
 
    function Calc_Dictionnaire return Dictionnaire_Combinaison;
 
-
-   -- dictionnaire des combinaison précalculées
+   -- dictionnaire des combinaison prï¿½calculï¿½es
    Dictionnaire : Dictionnaire_Combinaison;
-
 
    type Iterator is record
       Tailletotale : Natural;
-      Nbe : Nbelements_Access; -- tableau contenant le nombre total d'éléments pour chaque schema
-      Possibilite : Enum_Possibilite_Access; -- nombre de possibilites
-                                             -- (arrangement pour chaque schemas)
+      Nbe : Nbelements_Access; -- tableau contenant le nombre total d'ï¿½lï¿½ments pour chaque schema
+      Possibilite  : Enum_Possibilite_Access; -- nombre de possibilites
+      -- (arrangement pour chaque schemas)
 
-      Current_Possibilite : Enum_Possibilite_Access_Access ; -- possibilite courante en cours d'exploitation ..
-      Current_Possibilite_Pos : Enum_Array_Access; -- pointeurs sur les combinaisons précalculées
+      Current_Possibilite : Enum_Possibilite_Access_Access; -- possibilite courante en cours d'exploitation ..
+      Current_Possibilite_Pos : Enum_Array_Access; -- pointeurs sur les combinaisons prï¿½calculï¿½es
 
    end record;
 
-
-
-end;
+end Combinatoire;

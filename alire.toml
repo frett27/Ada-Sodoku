@@ -1,0 +1,12 @@
+name = "sdksolver"
+description = "sodoku solver"
+version = "0.1.0-dev"
+
+authors = ["Patrice Freydiere"]
+maintainers = ["Patrice Freydiere <frett27@gmail.com>"]
+maintainers-logins = ["frett27"]
+licenses = "MIT"
+website = ""
+tags = ["sodoku", "solver"]
+
+executables = ["sdksolver","test_combinatoire", "recherche_solution"]

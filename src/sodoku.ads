@@ -21,155 +21,128 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-
 package sodoku is
 
-   type Column is range 1..3;
-   for Column'Size use 2;
+  type Column is range 1 .. 3;
+  for Column'Size use 2;
 
-   type Line is range 1..3;
-   for Line'Size use 2;
+  type Line is range 1 .. 3;
+  for Line'Size use 2;
 
-   -- nombre contenu dans une grille de sodoku
-   type Number is new Integer
-     range 0.. Integer(Column'Last) * Integer(Line'Last);
-   -- 0 signifie, pas définit
-   for Number'Size use 4;
+  -- nombre contenu dans une grille de sodoku
+  type Number is
+   new Integer range 0 .. Integer (Column'Last) * Integer (Line'Last);
+  -- 0 signifie, pas dï¿½finit
+  for Number'Size use 4;
 
+  -- type dï¿½crivant une grille de sodoku
+  type Grille is private;
 
-   -- type décrivant une grille de sodoku
-   type Grille is private;
+  -- type dï¿½finissant une reference ï¿½ une case dans
+  -- la grille
+  type Ref is private;
 
+  procedure Image (G : in Grille);
+  function Empty return Grille;
 
-   -- type définissant une reference à une case dans
-   -- la grille
-   type Ref is private;
+  -- fonctions de manipulation d'une grille de sodoku
+  procedure Put (G : in out Grille; R : Ref; N : Number);
+  function Get (G : in Grille; R : Ref) return Number;
 
+  -- type decrivant une recherche de grille, dans laquelle
+  -- il y a des zero, signifiant que la grille n'est pas
+  -- complï¿½te. associï¿½ ï¿½ chaque ï¿½lï¿½ment incomplet, une liste
+  -- de possibilitï¿½s est associï¿½e
+  type Search is private;
 
-   procedure Image(G : in Grille);
-   function Empty return Grille;
+  -- cette fonction convertie une recherche en grille (
+  -- extraction de la grille)
+  function To_Grille (S : in Search) return Grille;
 
-   -- fonctions de manipulation d'une grille de sodoku
-   procedure Put(G : in out Grille; R : Ref ; N : Number);
-   function Get(G : in Grille; R : Ref) return Number;
+  procedure Image (S : in Search);
 
-   -- type decrivant une recherche de grille, dans laquelle
-   -- il y a des zero, signifiant que la grille n'est pas
-   -- complète. associé à chaque élément incomplet, une liste
-   -- de possibilités est associée
-   type Search is private;
+  -- creation d'une grille de recherche vide
+  function Empty return Search;
 
-   -- cette fonction convertie une recherche en grille (
-   -- extraction de la grille)
-   function To_Grille (S : in Search) return Grille;
+  -- dï¿½finit la valeur d'un ï¿½lï¿½ment de la grille de recherche,
+  -- en reduisant les possibilitï¿½s associï¿½es aux autres ï¿½lï¿½ments
+  -- liï¿½s (colonne, ligne et sous-grille)
+  procedure Put (S : in out Search; R : Ref; N : Number);
 
-   procedure Image (S : in Search);
+  -- rï¿½cupï¿½re la valeur associï¿½e ï¿½ une grille de recherche
+  function Get (S : in Search; R : Ref) return Number;
 
-   -- creation d'une grille de recherche vide
-   function Empty return Search;
+  -- supprime la valeur ï¿½ l'endroit donnï¿½
+  procedure Remove (S : in out Search; R : Ref);
 
-   -- définit la valeur d'un élément de la grille de recherche,
-   -- en reduisant les possibilités associées aux autres éléments
-   -- liés (colonne, ligne et sous-grille)
-   procedure Put (S : in out Search;
-                  R :        Ref;
-                  N :        Number);
+  -- converti une grille de sodoku en grille de recherche
+  function To_Search (G : in Grille) return Search;
 
-   -- récupère la valeur associée à une grille de recherche
-   function Get (S : in Search;
-                 R :    Ref) return Number;
+  Invalid_Number : exception;
 
-   -- supprime la valeur à l'endroit donné
-   procedure Remove (S : in out Search;
-                     R :        Ref);
+  -- liste des possibilitï¿½s pour une case dans la grille
+  type Possibilite is array (1 .. Number'Last) of Boolean;
+  pragma Pack (Possibilite);
 
+  --
+  -- Liste les possibilitï¿½s pour une case de la grille ...
+  --
+  function List_Possibilite (S : in Search; R : Ref) return Possibilite;
 
-   -- converti une grille de sodoku en grille de recherche
-   function To_Search(G : in Grille) return Search;
+  -- Compte le nombre de possibilitï¿½s pour une case ..
+  function Count_Possibilite (S : in Search; R : Ref) return Natural;
 
+  -- manipulation des rï¿½fï¿½rence
 
-   Invalid_Number : exception;
+  function TopLeft return Ref;
+  procedure Image (R : Ref);
+  function Next (R : Ref) return Ref;
 
+  -- numï¿½ros de case
+  type NCase is
+   range 0 .. Natural (Column'Last**2) * Natural (Line'Last**2) - 1;
 
-   -- liste des possibilités pour une case dans la grille
-   type Possibilite is array (1 .. Number'Last) of Boolean;
-   pragma Pack(Possibilite);
+  -- converti une rï¿½fï¿½rence de case en numï¿½ros de case
+  function ToNCase (R : Ref) return NCase;
 
-   --
-   -- Liste les possibilités pour une case de la grille ...
-   --
-   function List_Possibilite (S : in Search;
-                              R :    Ref) return Possibilite;
+  -- converti un numero de case en reference
+  function ToRef (N : NCase) return Ref;
 
-   -- Compte le nombre de possibilités pour une case ..
-   function Count_Possibilite (S : in Search;
-                               R :    Ref) return Natural;
+  -- fonction d'IO des grilles ...
+  procedure Save (G : in Grille; FileName : String);
 
+  function Load (FileName : String) return Grille;
 
-
-   -- manipulation des référence
-
-   function TopLeft return Ref;
-   procedure Image (R : Ref);
-   function Next(R : Ref) return Ref;
-
-   -- numéros de case
-   type NCase is
-     range 0..Natural(Column'Last **2) * Natural(Line'Last **2) - 1;
-
-     -- converti une référence de case en numéros de case
-     function ToNCase(R:Ref) return NCase;
-
-     -- converti un numero de case en reference
-     function ToRef(N : NCase) return Ref;
-
-
-     -- fonction d'IO des grilles ...
-     procedure Save (G        : in Grille;
-                     FileName :    String);
-
-     function Load(FileName:String) return Grille;
-
-
-     -- fonction de recherche
-     procedure Find(S:in Search;
-                    Found:out Boolean;
-                    Result : out Search;
-                    Unique : out Boolean );
-
-
-
-
+  -- fonction de recherche
+  procedure Find
+   (S      : in     Search; Found : out Boolean; Result : out Search;
+    Unique :    out Boolean);
 
 private
 
+  type Matrice is array (Column, Line) of Number;
+  pragma Pack (Matrice);
 
-   type Matrice is array(column,line) of Number;
-   pragma Pack(Matrice);
+  type Grille is array (Column, Line) of Matrice;
+  pragma Pack (Grille);
 
-   type Grille is array (column,line) of Matrice;
-   pragma Pack(Grille);
+  type Matrice_Possibilite is array (Column, Line) of Possibilite;
+  pragma Pack (Matrice_Possibilite);
 
-   type Matrice_Possibilite is
-     array (column, line) of Possibilite;
-   pragma Pack(Matrice_Possibilite);
+  type Grille_Possibilite is array (Column, Line) of Matrice_Possibilite;
+  pragma Pack (Grille_Possibilite);
 
-   type Grille_Possibilite is
-     array (column, line) of Matrice_Possibilite;
-   pragma Pack(Grille_Possibilite);
+  type Search is record
+    G : Grille;
+    P : Grille_Possibilite;
+  end record;
 
-   type Search is record
-      G : Grille;
-      P : Grille_Possibilite;
-   end record;
-
-
-   -- référence à une case du sodoku ...
-   type Ref is record
-      MC : Column; -- colonne de la matrice
-      ML : Line; -- ligne de la matrice
-      GC : Column;
-      GL : Line;
-   end record;
+  -- rï¿½fï¿½rence ï¿½ une case du sodoku ...
+  type Ref is record
+    MC : Column; -- colonne de la matrice
+    ML : Line; -- ligne de la matrice
+    GC : Column;
+    GL : Line;
+  end record;
 
 end sodoku;

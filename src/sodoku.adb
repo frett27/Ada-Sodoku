@@ -21,321 +21,311 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Text_Io;use Ada.Text_Io;
+with Ada.Text_Io; use Ada.Text_Io;
 
 package body sodoku is
 
-   procedure Image(G : in Grille) is
+   procedure Image (G : in Grille) is
    begin
-      for I in line'Range loop
-         for J in line'Range loop
+      for I in Line'Range loop
+         for J in Line'Range loop
 
-            for K in column'Range loop
-               for L in column'Range loop
-                  Put(Number'Image(G(K, I)(L, J)));
+            for K in Column'Range loop
+               for L in Column'Range loop
+                  Put (Number'Image (G (K, I) (L, J)));
                end loop;
 
             end loop;
             New_Line;
          end loop;
       end loop;
-   end;
+   end Image;
 
    function Empty return Grille is
       G : Grille;
    begin
-      for I in line'Range loop
-         for J in line'Range loop
-            for K in column'Range loop
-               for L in column'Range loop
-                  G(K, I)(L, J):=0;
+      for I in Line'Range loop
+         for J in Line'Range loop
+            for K in Column'Range loop
+               for L in Column'Range loop
+                  G (K, I) (L, J) := 0;
                end loop;
             end loop;
          end loop;
       end loop;
       return G;
-   end;
+   end Empty;
 
-   procedure Put(G : in out Grille; R : Ref ; N : Number) is
+   procedure Put (G : in out Grille; R : Ref; N : Number) is
    begin
-      G(R.Gc, R.Gl)(R.Mc, R.Ml) := N;
-   end;
+      G (R.GC, R.GL) (R.MC, R.ML) := N;
+   end Put;
 
-   function Get(G : in Grille; R : Ref) return Number is
+   function Get (G : in Grille; R : Ref) return Number is
    begin
-      return G(R.Gc, R.Gl)(R.Mc, R.Ml);
-   end;
+      return G (R.GC, R.GL) (R.MC, R.ML);
+   end Get;
 
    --
-   -- Manipulation des éléments de recherche ...
+   -- Manipulation des ï¿½lï¿½ments de recherche ...
    --
 
    function Empty return Search is
-   S : Search;
+      S : Search;
    begin
-      for I in line'Range loop
-         for J in line'Range loop
-            for K in column'Range loop
-               for L in column'Range loop
-                  S.P(K,I)(L,J) := (others => true);
+      for I in Line'Range loop
+         for J in Line'Range loop
+            for K in Column'Range loop
+               for L in Column'Range loop
+                  S.P (K, I) (L, J) := (others => True);
                end loop;
             end loop;
          end loop;
       end loop;
       S.G := Empty;
-      return s;
-   end;
+      return S;
+   end Empty;
 
-   function To_Grille(S : in Search) return Grille is
+   function To_Grille (S : in Search) return Grille is
    begin
       return S.G;
-   end;
+   end To_Grille;
 
-   function To_Search(G : in Grille) return Search is
-      S:Search := Empty;
+   function To_Search (G : in Grille) return Search is
+      S : Search := Empty;
    begin
-      for I in Ncase'Range loop
+      for I in NCase'Range loop
          declare
-            R : Ref := Toref(I);
-            N : Number := Get(G,R);
+            R : Ref    := ToRef (I);
+            N : Number := Get (G, R);
          begin
-            if n /= 0 then
-               Put(S,R,N);
+            if N /= 0 then
+               Put (S, R, N);
             end if;
          end;
       end loop;
       return S;
-   end;
+   end To_Search;
 
-
-   procedure Image( S : Search ) is
+   procedure Image (S : Search) is
    begin
-      Image(S.G);
-   end;
+      Image (S.G);
+   end Image;
 
-   procedure Remove(S : in out Search; R : Ref) is
-     G : Grille := To_Grille(S);
+   procedure Remove (S : in out Search; R : Ref) is
+      G : Grille := To_Grille (S);
    begin
-      Put(G, R, 0);
-      S := To_Search(G);
-   end;
+      Put (G, R, 0);
+      S := To_Search (G);
+   end Remove;
 
-
-   procedure Put(S : in out Search; R : Ref ; N : Number) is
+   procedure Put (S : in out Search; R : Ref; N : Number) is
    begin
 
-      -- on vérifie que le nombre est possible pour la case ..
-      if not S.p(R.Gc, R.Gl)(R.Mc, R.Ml)(N) then
-         raise INVALID_NUMBER;
+      -- on vï¿½rifie que le nombre est possible pour la case ..
+      if not S.P (R.GC, R.GL) (R.MC, R.ML) (N) then
+         raise Invalid_Number;
       end if;
 
-      -- on enlève les possibilites du nombre sur la colonne ...
-      for I in line'Range loop
-         for K in line'Range loop
-            S.P(R.Gc, K)(R.Mc, I)(N) := False;
+      -- on enlï¿½ve les possibilites du nombre sur la colonne ...
+      for I in Line'Range loop
+         for K in Line'Range loop
+            S.P (R.GC, K) (R.MC, I) (N) := False;
          end loop;
       end loop;
 
-       -- on enlève les possibilites du nombre sur la ligne ...
-      for I in column'Range loop
-         for K in column'Range loop
-            S.P(i, R.gl)(k, R.ml)(N) := False;
+      -- on enlï¿½ve les possibilites du nombre sur la ligne ...
+      for I in Column'Range loop
+         for K in Column'Range loop
+            S.P (I, R.GL) (K, R.ML) (N) := False;
          end loop;
       end loop;
 
-      -- on enleve les possibilités du nombre sur la matrice
-      for I in column'Range loop
-         for K in line'Range loop
-            S.P(R.gc, R.gl)(i, k)(N) := False;
+      -- on enleve les possibilitï¿½s du nombre sur la matrice
+      for I in Column'Range loop
+         for K in Line'Range loop
+            S.P (R.GC, R.GL) (I, K) (N) := False;
          end loop;
       end loop;
 
       -- on met le nombre dans la matrice
-      Put(S.G, R, N);
+      Put (S.G, R, N);
 
-      S.P(R.gc, R.gl)(R.mc, R.ml) := (others=>False);
-   end;
+      S.P (R.GC, R.GL) (R.MC, R.ML) := (others => False);
+   end Put;
 
-   function Get(S : in Search; R : Ref) return Number is
+   function Get (S : in Search; R : Ref) return Number is
    begin
-      return Get(S.G, R);
-   end;
-
+      return Get (S.G, R);
+   end Get;
 
    --
-   -- Manipulation des références
+   -- Manipulation des rï¿½fï¿½rences
    --
 
    function Topleft return Ref is
    begin
-      return Ref'(Gl=>1,Gc=>1,Ml=>1,Mc=>1);
-   end;
+      return Ref'(GL => 1, GC => 1, ML => 1, MC => 1);
+   end Topleft;
 
-   function Next(R : Ref) return Ref  is
+   function Next (R : Ref) return Ref is
       Retvalue : Ref := R;
    begin
-      if (R.Mc = Column'Last) then
+      if (R.MC = Column'Last) then
 
          -- on est en fin de colonne
-         Retvalue.Mc := 1;
+         Retvalue.MC := 1;
 
-         if (R.Ml = Line'Last) then
+         if (R.ML = Line'Last) then
             -- on est en fin de ligne ...
 
-            Retvalue.Ml := 1;
+            Retvalue.ML := 1;
 
             -- on incremente la colonne de la grille ...
-            if (R.Gc = Column'Last) then
+            if (R.GC = Column'Last) then
 
-               Retvalue.Gc  := 1;
+               Retvalue.GC := 1;
 
-               if (R.Gl = Line'Last) then
-                  Retvalue.Gl := 1;
+               if (R.GL = Line'Last) then
+                  Retvalue.GL := 1;
                else
-                  Retvalue.Gl := Line'Succ(R.Gl);
+                  Retvalue.GL := Line'Succ (R.GL);
                end if;
             else
-               Retvalue.Gc := Column'Succ(R.Gc);
+               Retvalue.GC := Column'Succ (R.GC);
             end if;
          else
-            Retvalue.Ml := Line'Succ(R.Ml);
+            Retvalue.ML := Line'Succ (R.ML);
          end if;
       else
-         Retvalue.Mc := column'Succ(R.Mc);
+         Retvalue.MC := Column'Succ (R.MC);
       end if;
 
       return Retvalue;
-   end;
+   end Next;
 
-   procedure Image(R:Ref) is
+   procedure Image (R : Ref) is
    begin
-      for I in line'Range loop
-         for J in line'Range loop
-            for K in column'Range loop
-               for L in column'Range loop
+      for I in Line'Range loop
+         for J in Line'Range loop
+            for K in Column'Range loop
+               for L in Column'Range loop
 
-                  if (K = R.Gc and then
-                      L = R.Mc and then
-                      J = R.Ml and then
-                      I = R.Gl ) then
-                     Put("X");
+                  if
+                    (K = R.GC and then L = R.MC and then J = R.ML
+                     and then I = R.GL)
+                  then
+                     Put ("X");
                   else
-                     Put(".");
+                     Put (".");
                   end if;
                end loop;
             end loop;
             New_Line;
          end loop;
       end loop;
-   end;
+   end Image;
 
-   function List_Possibilite(S : in Search ; R : Ref ) return Possibilite is
+   function List_Possibilite (S : in Search; R : Ref) return Possibilite is
    begin
-      return S.P(R.Gc, R.Gl)(R.Mc, R.Ml);
-   end;
+      return S.P (R.GC, R.GL) (R.MC, R.ML);
+   end List_Possibilite;
 
-   function Count_Possibilite(S : in Search ; R : Ref) return Natural is
-      P : Possibilite := List_Possibilite(S, R);
-      Retvalue : Natural := 0;
+   function Count_Possibilite (S : in Search; R : Ref) return Natural is
+      P        : Possibilite := List_Possibilite (S, R);
+      Retvalue : Natural     := 0;
    begin
       for I in P'Range loop
-         if P(I) then
-            Retvalue := Natural'Succ(Retvalue);
+         if P (I) then
+            Retvalue := Natural'Succ (Retvalue);
          end if;
       end loop;
 
       return Retvalue;
-   end;
+   end Count_Possibilite;
 
-   function ToNCase(R:Ref) return NCase is
-      Colonne : Natural := (Natural(R.Gc) - 1) * Natural(Column'Last) + Natural(R.Mc) - 1;
-      Ligne : Natural := (Natural(R.Gl) - 1) * Natural(Line'Last) + Natural(R.Ml) - 1;
+   function ToNCase (R : Ref) return NCase is
+      Colonne : Natural :=
+        (Natural (R.GC) - 1) * Natural (Column'Last) + Natural (R.MC) - 1;
+      Ligne   : Natural :=
+        (Natural (R.GL) - 1) * Natural (Line'Last) + Natural (R.ML) - 1;
    begin
-      return NCase(Ligne * (Natural(Column'Last) ** 2) + Colonne );
-   end;
+      return NCase (Ligne * (Natural (Column'Last)**2) + Colonne);
+   end ToNCase;
 
-   function ToRef(N : NCase) return Ref is
-      R : Ref ;
-      Ligne : Natural := Natural(N) / (Natural(Column'Last ** 2));
-      Colonne : Natural := Natural(N) mod (Natural(Column'Last ** 2));
+   function ToRef (N : NCase) return Ref is
+      R       : Ref;
+      Ligne   : Natural := Natural (N) / (Natural (Column'Last**2));
+      Colonne : Natural := Natural (N) mod (Natural (Column'Last**2));
    begin
-      R.Gl := Line((Ligne / Natural(Line'Last)) + 1);
-      R.Ml := Line((Ligne mod Natural(Line'Last)) + 1);
+      R.GL := Line ((Ligne / Natural (Line'Last)) + 1);
+      R.ML := Line ((Ligne mod Natural (Line'Last)) + 1);
 
-      R.Gc := Column(Colonne / Natural(Column'Last) + 1);
-      R.Mc := Column(Colonne mod Natural(Column'Last) + 1);
+      R.GC := Column (Colonne / Natural (Column'Last) + 1);
+      R.MC := Column (Colonne mod Natural (Column'Last) + 1);
 
       return R;
-   end;
+   end ToRef;
 
-
-  procedure Save(G : in Grille;
-                  FileName : String) is
+   procedure Save (G : in Grille; FileName : String) is
       F : File_Type;
 
-      package NIO is new Integer_Io(Num=>Number);
+      package NIO is new Integer_Io (Num => Number);
 
    begin
-      Create(File => F,
-             Name=> Filename,
-             Mode => Out_file);
-      for I in Ncase'Range loop
+      Create (File => F, Name => Filename, Mode => Out_file);
+      for I in NCase'Range loop
          if I mod 9 = 0 then
-            New_Line(F);
+            New_Line (F);
          end if;
-         Nio.Put(F, Get(G,Toref(I)));
+         Nio.Put (F, Get (G, Toref (I)));
       end loop;
 
-      Close(F);
+      Close (F);
 
-   end;
+   end Save;
 
-   function Load(FileName:String) return Grille is
+   function Load (FileName : String) return Grille is
 
       F : File_Type;
       G : Grille := Empty;
-      N : Number ;
-      package NIO is new Integer_Io(Num=>Number);
+      N : Number;
+      package NIO is new Integer_Io (Num => Number);
 
    begin
-      Open(File=>F,
-           Name => Filename,
-           Mode => In_File);
+      Open (File => F, Name => Filename, Mode => In_File);
 
-      for I in Ncase'Range loop
-         Nio.Get(F,N);
-         Put(G,Toref(I),N);
+      for I in NCase'Range loop
+         Nio.Get (F, N);
+         Put (G, ToRef (I), N);
       end loop;
 
-      Close(F);
+      Close (F);
 
       return G;
-   end;
+   end Load;
 
+   procedure Find
+     (S      : in     Search; Found : out Boolean; Result : out Search;
+      Unique :    out Boolean)
+   is
 
-
-   procedure Find(S:in Search;
-                  Found:out Boolean;
-                  Result : out Search;
-                  Unique : out Boolean ) is
-
-
-      procedure Find_Zero_Minimum_Valence(Found : out Boolean;
-                                          Result : out NCase;
-                                          Valence : out Natural) is
-         N : Natural := Natural'last;
+      procedure Find_Zero_Minimum_Valence
+        (Found : out Boolean; Result : out NCase; Valence : out Natural)
+      is
+         N : Natural := Natural'Last;
       begin
          Found := False;
 
-         for I in Ncase'Range loop
+         for I in NCase'Range loop
             declare
-               R: Ref := Toref(I);
+               R : Ref := ToRef (I);
             begin
-               if Get(S, R) = 0 then
+               if Get (S, R) = 0 then
                   Found := True;
-                  if Count_Possibilite(S, R) < N then
-                     Result := i;
-                     N := Count_Possibilite(S,R);
+                  if Count_Possibilite (S, R) < N then
+                     Result := I;
+                     N      := Count_Possibilite (S, R);
                   end if;
                end if;
             end;
@@ -343,43 +333,43 @@ package body sodoku is
 
          Valence := N;
 
-      end;
+      end Find_Zero_Minimum_Valence;
 
       B : Boolean := False;
       C : NCase;
       V : Natural;
    begin
       Unique := True;
-      Find_Zero_Minimum_Valence (B , C, V);
+      Find_Zero_Minimum_Valence (B, C, V);
       if B then
 
          if V > 1 then
             Unique := False;
          end if;
 
-         -- on a trouvé un zero ...
-         -- C contient la case à rechercher ...
+         -- on a trouvï¿½ un zero ...
+         -- C contient la case ï¿½ rechercher ...
 
          declare
-            R : Ref := Toref(C);
-            P : Possibilite := List_Possibilite(S, R);
+            R : Ref         := ToRef (C);
+            P : Possibilite := List_Possibilite (S, R);
          begin
             -- on essaye toutes les possibilites ...
             for I in P'Range loop
-               if P(I) then
+               if P (I) then
 
                   declare
-                     NS:Search := S;
-                     NR : Boolean ;
-                     NU : Boolean;
-                     NResult : Search  ;
+                     NS      : Search := S;
+                     NR      : Boolean;
+                     NU      : Boolean;
+                     NResult : Search;
                   begin
-                     Put(Ns,R, I);
-                     Find(Ns,Nr, Nresult, Nu);
-                     if Nr then
-                        Found := True;
-                        Result := nresult;
-                        Unique := Unique and Nu;
+                     Put (NS, R, I);
+                     Find (NS, NR, NResult, NU);
+                     if NR then
+                        Found  := True;
+                        Result := NResult;
+                        Unique := Unique and NU;
                         return;
                      end if;
                   end;
@@ -394,10 +384,10 @@ package body sodoku is
          end;
       else
          -- c'est la fin ...
-         Found := True;
+         Found  := True;
          Result := S;
       end if;
 
-   end;
+   end Find;
 
 end sodoku;
