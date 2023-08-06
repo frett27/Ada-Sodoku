@@ -20,5 +20,6 @@ jobs:
         sudo apt-get update &&
         sudo apt-get install gnat gprbuild
 
-    - name: Build
-      run: gprbuild sdksolver.gpr
+    - uses: alire-project/setup-alire@v2
+      with:
+        branch: "master" # or the branch you want to use
